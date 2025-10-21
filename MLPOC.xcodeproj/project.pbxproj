@@ -6,8 +6,17 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F4F64B722EA7FFB700C2262C /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F64B712EA7FFB700C2262C /* CoreML.framework */; };
+		F4F64B742EA7FFC200C2262C /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F64B732EA7FFC200C2262C /* Vision.framework */; };
+		F4F64B762EA7FFCD00C2262C /* PhotosUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F64B752EA7FFCD00C2262C /* PhotosUI.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F4F64B602EA7FF6D00C2262C /* MLPOC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MLPOC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4F64B712EA7FFB700C2262C /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/CoreML.framework; sourceTree = DEVELOPER_DIR; };
+		F4F64B732EA7FFC200C2262C /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Vision.framework; sourceTree = DEVELOPER_DIR; };
+		F4F64B752EA7FFCD00C2262C /* PhotosUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PhotosUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/PhotosUI.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +32,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4F64B742EA7FFC200C2262C /* Vision.framework in Frameworks */,
+				F4F64B722EA7FFB700C2262C /* CoreML.framework in Frameworks */,
+				F4F64B762EA7FFCD00C2262C /* PhotosUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +45,7 @@
 			isa = PBXGroup;
 			children = (
 				F4F64B622EA7FF6D00C2262C /* MLPOC */,
+				F4F64B702EA7FFB700C2262C /* Frameworks */,
 				F4F64B612EA7FF6D00C2262C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +56,16 @@
 				F4F64B602EA7FF6D00C2262C /* MLPOC.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F4F64B702EA7FFB700C2262C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F4F64B752EA7FFCD00C2262C /* PhotosUI.framework */,
+				F4F64B732EA7FFC200C2262C /* Vision.framework */,
+				F4F64B712EA7FFB700C2262C /* CoreML.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
