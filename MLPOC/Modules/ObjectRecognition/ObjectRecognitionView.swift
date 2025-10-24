@@ -43,17 +43,31 @@ struct ObjectRecognitionView: View {
                 }
 
                 Spacer()
-
-                if !viewModel.predictions.isEmpty {
-                    List(viewModel.predictions) { prediction in
-                        HStack {
-                            Text(prediction.label)
-                            Spacer()
-                            Text(String(format: "%.1f %%", prediction.confidence * 100))
-                                .foregroundStyle(.secondary)
+                switch viewModel.selectedModel {
+                case .fastViTMA36F16, .resnet50, .mobileNetV2:
+                    if !viewModel.classifications.isEmpty {
+                        List(viewModel.classifications) { prediction in
+                            HStack {
+                                Text(prediction.label)
+                                Spacer()
+                                Text(String(format: "%.1f %%", prediction.confidence * 100))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
+                        .frame(height: 200)
                     }
-                    .frame(height: 200)
+                case .yolo11:
+                    if !viewModel.detections.isEmpty {
+                        List(viewModel.detections) { detections in
+                            HStack {
+                                Text(detections.label)
+                                Spacer()
+                                Text(String(format: "%.1f %%", detections.confidence * 100))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(height: 200)
+                    }
                 }
             }
             .padding()

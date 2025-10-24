@@ -11,6 +11,7 @@ enum MLModelType: String, CaseIterable, Identifiable {
     case mobileNetV2 = "MobileNetV2"
     case resnet50 = "Resnet50"
     case fastViTMA36F16 = "FastViTMA36F16"
+    case yolo11 = "yolo11n"
 
     var id: Self { self }
 
@@ -26,6 +27,8 @@ enum MLModelType: String, CaseIterable, Identifiable {
             return try? Resnet50(configuration: configuration).model
         case .fastViTMA36F16:
             return try? FastViTMA36F16(configuration: configuration).model
+        case .yolo11:
+            return try? yolo11n(configuration: configuration).model
         }
     }
 }

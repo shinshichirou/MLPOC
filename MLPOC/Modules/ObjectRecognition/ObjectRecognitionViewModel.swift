@@ -12,9 +12,12 @@ import Combine
 
 final class ObjectRecognitionViewModel: ObservableObject {
     @Published var selectedImage: UIImage?
-    @Published var predictions: [ClassificationPrediction] = []
+    @Published var classifications: [ClassificationPrediction] = []
+    @Published var detections: [DetectionPrediction] = []
     @Published var selectedModel: MLModelType = .mobileNetV2
     @Published var isShowingPicker = false
+
+    private let queue = DispatchQueue(label: "mlpoc.inference", qos: .userInitiated)
 
     func showPhotoPicker() {
         isShowingPicker = true
@@ -32,9 +35,11 @@ final class ObjectRecognitionViewModel: ObservableObject {
 
     private func classify(_ image: UIImage) {
         DispatchQueue.main.async { [weak self] in
-            self?.predictions = []
+            self?.classifications = []
         }
-        guard let ciImage = CIImage(image: image) else { return }
+        guard let ciImage = CIImage(image: image) else {
+            return
+        }
 
         let configuration = MLModelConfiguration()
         configuration.computeUnits = .all
@@ -46,24 +51,52 @@ final class ObjectRecognitionViewModel: ObservableObject {
             return
         }
 
-        let request = VNCoreMLRequest(model: mlModel) { [weak self] request, _ in
-            guard let results = request.results as? [VNClassificationObservation] else { return }
-            let topResults = results.prefix(3).map {
-                ClassificationPrediction(label: $0.identifier,
-                                         confidence: Double($0.confidence))
+        let cropOption: VNImageCropAndScaleOption = {
+            switch selectedModel {
+            case .mobileNetV2, .resnet50, .fastViTMA36F16:
+                return .centerCrop
+            case .yolo11:
+                return .scaleFill
             }
-            DispatchQueue.main.async {
-                self?.predictions = topResults
+        }()
+
+        let request = VNCoreMLRequest(model: mlModel) { [weak self] request, _ in
+            guard let self else { return }
+
+            // Route 1: Object Detection (YOLO + NMS -> VNRecognizedObjectObservation)
+            if let objects = request.results as? [VNRecognizedObjectObservation] {
+                let mapped: [DetectionPrediction] = objects.compactMap { o in
+                    guard let top = o.labels.first else { return nil }
+                    return DetectionPrediction(label: top.identifier,
+                                               confidence: Double(top.confidence),
+                                               boundingBox: o.boundingBox) // normalized [0,1]
+                }
+                DispatchQueue.main.async { self.detections = mapped }
+                return
+            }
+
+            // Route 2: Image Classification
+            if let classes = request.results as? [VNClassificationObservation] {
+                let top = classes.prefix(3).map {
+                    ClassificationPrediction(label: $0.identifier,
+                                             confidence: Double($0.confidence))
+                }
+                DispatchQueue.main.async { self.classifications = top }
+                return
             }
         }
-        request.imageCropAndScaleOption = .centerCrop
+        request.imageCropAndScaleOption = cropOption
 
         let handler = VNImageRequestHandler(ciImage: ciImage,
                                             orientation: image.cgImageOrientation,
                                             options: [:])
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            try? handler.perform([request])
+        queue.async {
+            do {
+                try handler.perform([request])
+            } catch {
+                print("Object recognition failed: \(error)")
+            }
         }
     }
 }
