@@ -13,7 +13,7 @@ enum QwenEngineFactoryError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .failedToLoadModels:
-            return "Failed to load the Qwen CoreML models. Make sure Qwen1p5_1_8B_prompt_int4.mlmodelc and Qwen1p5_1_8B_decode_int4.mlmodelc are included in the app bundle."
+            return "Failed to load the Qwen CoreML models. Make sure Qwen1p5_1_8B_prompt and Qwen1p5_1_8B_decode are included in the app bundle."
         }
     }
 }
@@ -29,8 +29,8 @@ enum QwenEngineFactory {
             temperature: 0.7,
             topK: 40,
             topP: 0.9,
-            promptResourceName: "Qwen1p5_1_8B_prompt_int4",
-            decodeResourceName: "Qwen1p5_1_8B_decode_int4",
+            promptResourceName: "Qwen1p5_1_8B_prompt_int8",
+            decodeResourceName: "Qwen1p5_1_8B_decode_int8",
             resourceSubdirectory: resourceSubdirectory
         )
 

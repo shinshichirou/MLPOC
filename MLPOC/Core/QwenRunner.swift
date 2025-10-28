@@ -81,7 +81,7 @@ final class QwenRunner {
 
         let computeCandidates: [MLComputeUnits] = [.cpuAndGPU, .cpuOnly]
         var lastError: Error?
-        var selectedComputeUnits: MLComputeUnits = .all
+        var selectedComputeUnits: MLComputeUnits = .cpuAndGPU
         var promptModel: MLModel?
         var decodeModel: MLModel?
 
