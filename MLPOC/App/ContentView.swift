@@ -18,11 +18,11 @@ struct ContentView: View {
                 }
                 .tag(AppTab.objectRecognition)
 
-            PlaceholderFeatureView()
+            QwenChatView()
                 .tabItem {
-                    Label("Upcoming", systemImage: "sparkles")
+                    Label("Chat", systemImage: "ellipsis.bubble")
                 }
-                .tag(AppTab.placeholder)
+                .tag(AppTab.chat)
         }
     }
 }
