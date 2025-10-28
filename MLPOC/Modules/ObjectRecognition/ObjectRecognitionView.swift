@@ -22,10 +22,11 @@ struct ObjectRecognitionView: View {
                     .pickerStyle(.segmented)
 
                     if let uiImage = viewModel.selectedImage {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 250)
+                        AnnotatedImageView(
+                            image: uiImage,
+                            detections: viewModel.selectedModel == .yolo11 ? viewModel.detections : []
+                        )
+                        .frame(height: 250)
                     } else {
                         Rectangle()
                             .fill(Color.secondary.opacity(0.2))

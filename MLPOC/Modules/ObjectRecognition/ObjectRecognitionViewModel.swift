@@ -77,7 +77,7 @@ final class ObjectRecognitionViewModel: ObservableObject {
 
             // Route 2: Image Classification
             if let classes = request.results as? [VNClassificationObservation] {
-                let top = classes.prefix(3).map {
+                let top = classes.map {
                     ClassificationPrediction(label: $0.identifier,
                                              confidence: Double($0.confidence))
                 }
