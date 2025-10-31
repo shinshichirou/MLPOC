@@ -8,9 +8,12 @@
 import Foundation
 
 struct DetectionPrediction: Identifiable {
+    let id = UUID()
     let label: String
     let confidence: Double
     let boundingBox: CGRect
 
-    var id: String { label + UUID().uuidString }
+    var formattedConfidence: String {
+        String(format: "%.1f %%", confidence * 100)
+    }
 }

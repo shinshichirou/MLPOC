@@ -1,9 +1,9 @@
 import SwiftUI
 
-struct QwenChatView: View {
-    @StateObject private var viewModel = QwenChatViewModel()
+struct ChatView: View {
+    @StateObject private var viewModel = ChatViewModel()
 
-    init(viewModel: QwenChatViewModel? = nil) {
+    init(viewModel: ChatViewModel? = nil) {
         if let viewModel {
             _viewModel = StateObject(wrappedValue: viewModel)
         }
@@ -20,7 +20,7 @@ struct QwenChatView: View {
                                     Image(systemName: "text.bubble")
                                         .font(.system(size: 44))
                                         .foregroundStyle(.secondary)
-                                    Text("Ask Qwen something to get started.")
+                                    Text("Ask something to get started.")
                                         .font(.callout)
                                         .foregroundStyle(.secondary)
                                 }
@@ -79,7 +79,7 @@ struct QwenChatView: View {
                 .padding(.bottom, 16)
                 .padding(.top, 4)
             }
-            .navigationTitle("Qwen Chat")
+            .navigationTitle("On-Device Chat")
         }
         .task {
             await viewModel.loadDefaultEngine()
@@ -87,7 +87,7 @@ struct QwenChatView: View {
     }
 
     @ViewBuilder
-    private func chatBubble(for message: QwenChatViewModel.Message) -> some View {
+    private func chatBubble(for message: ChatViewModel.Message) -> some View {
         HStack {
             if message.role == .assistant {
                 bubbleText(message.text, isUser: false)
@@ -131,5 +131,5 @@ struct QwenChatView: View {
 }
 
 #Preview {
-    QwenChatView()
+    ChatView()
 }

@@ -12,13 +12,13 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            ObjectRecognitionView()
+            ObjectRecognitionRootView()
                 .tabItem {
                     Label("Recognize", systemImage: "camera.viewfinder")
                 }
                 .tag(AppTab.objectRecognition)
 
-            QwenChatView()
+            ChatView()
                 .tabItem {
                     Label("Chat", systemImage: "ellipsis.bubble")
                 }

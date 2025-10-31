@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 @MainActor
-final class QwenChatViewModel: ObservableObject {
+final class ChatViewModel: ObservableObject {
     struct Message: Identifiable {
         enum Role {
             case user
@@ -15,8 +15,8 @@ final class QwenChatViewModel: ObservableObject {
     }
 
     struct Engine {
-        let runner: QwenRunner
-        let tokenizer: Tokenizer
+        let runner: OnDeviceChatRunner
+        let tokenizer: ChatTokenizer
         let systemPrompt: String
     }
 
@@ -30,7 +30,7 @@ final class QwenChatViewModel: ObservableObject {
     init(engine: Engine? = nil) {
         self.engine = engine
         if engine == nil {
-            errorMessage = "Configure Qwen models and tokenizer to enable on-device chat."
+            errorMessage = "Configure the chat models and tokenizer to enable on-device responses."
         } else {
             errorMessage = nil
         }
@@ -71,7 +71,7 @@ final class QwenChatViewModel: ObservableObject {
 
         do {
             let engine = try await Task.detached(priority: .userInitiated) {
-                try await QwenEngineFactory.makeDefaultEngine(bundle: bundle)
+                return try await ChatEngineFactory.makeDefaultEngine(bundle: bundle)
             }.value
             configure(engine: engine)
         } catch {
@@ -81,7 +81,7 @@ final class QwenChatViewModel: ObservableObject {
 
     private func resolveReply(for prompt: String) async -> String {
         guard let engine else {
-            return "Qwen runner is not configured yet. Add a tokenizer and CoreML models to get live responses."
+            return "Chat runner is not configured yet. Add a tokenizer and CoreML models to get live responses."
         }
 
         do {
@@ -94,7 +94,7 @@ final class QwenChatViewModel: ObservableObject {
 
     private func runInference(using engine: Engine, userPrompt: String) async throws -> String {
         try await Task.detached(priority: .userInitiated) {
-            try await engine.runner.generate(
+            return try await engine.runner.generate(
                 system: engine.systemPrompt,
                 user: userPrompt,
                 tokenizer: engine.tokenizer

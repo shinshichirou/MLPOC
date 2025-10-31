@@ -12,4 +12,8 @@ struct ClassificationPrediction: Identifiable {
     let confidence: Double
 
     var id: String { label }
+
+    var formattedConfidence: String {
+        String(format: "%.1f %%", confidence * 100)
+    }
 }

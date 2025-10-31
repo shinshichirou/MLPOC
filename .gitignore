@@ -1,0 +1,14 @@
+MLPOC/MLModels/Llama32_3B/tokenizer.json
+MLPOC/MLModels/Llama32_3B/tokenizer_config.json
+MLPOC/MLModels/Llama32_3B/Llama32_3B_decode.mlmodelc/Llama32_3B_decode.mlmodelc/coremldata.bin
+MLPOC/MLModels/Llama32_3B/Llama32_3B_decode.mlmodelc/Llama32_3B_decode.mlmodelc/metadata.json
+MLPOC/MLModels/Llama32_3B/Llama32_3B_decode.mlmodelc/Llama32_3B_decode.mlmodelc/model.mil
+MLPOC/MLModels/Llama32_3B/Llama32_3B_decode.mlmodelc/Llama32_3B_decode.mlmodelc/analytics/coremldata.bin
+MLPOC/MLModels/Llama32_3B/Llama32_3B_decode.mlmodelc/Llama32_3B_decode.mlmodelc/weights/weight.bin
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/coremldata.bin
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/metadata.json
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/model.mil
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/tokenizer.json
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/tokenizer_config.json
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/analytics/coremldata.bin
+MLPOC/MLModels/Llama32_3B/Llama32_3B_prefill.mlmodelc/Llama32_3B_prefill.mlmodelc/weights/weight.bin
