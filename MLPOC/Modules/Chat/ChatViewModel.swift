@@ -14,8 +14,8 @@ final class ChatViewModel: ObservableObject {
         let text: String
     }
 
-    struct Engine {
-        let runner: OnDeviceChatRunner
+    struct Engine: Sendable {
+        let runner: any ChatRunning
         let tokenizer: ChatTokenizer
         let systemPrompt: String
     }
@@ -24,11 +24,23 @@ final class ChatViewModel: ObservableObject {
     @Published var currentInput: String = ""
     @Published var isGenerating = false
     @Published var errorMessage: String?
+    @Published var selectedModel: ChatModelType {
+        didSet {
+            guard modelSelectionActive, selectedModel != oldValue else { return }
+            Task { [weak self] in
+                guard let self else { return }
+                await self.loadEngine(for: selectedModel, bundle: modelBundle)
+            }
+        }
+    }
 
     private var engine: Engine?
+    private var modelBundle: Bundle = .main
+    private var modelSelectionActive = false
 
-    init(engine: Engine? = nil) {
+    init(engine: Engine? = nil, initialModel: ChatModelType = .empty) {
         self.engine = engine
+        self.selectedModel = initialModel
         if engine == nil {
             errorMessage = "Configure the chat models and tokenizer to enable on-device responses."
         } else {
@@ -65,17 +77,31 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
-    func loadDefaultEngine(bundle: Bundle = .main) async {
-        guard engine == nil else { return }
+    func prepareForUse(bundle: Bundle = .main) async {
+        modelBundle = bundle
+        modelSelectionActive = true
+        await loadEngine(for: selectedModel, bundle: bundle)
+    }
+
+    @discardableResult
+    func loadEngine(for model: ChatModelType, bundle: Bundle = .main) async -> Bool {
+        guard let configuration = model.configuration else {
+            engine = nil
+            errorMessage = "Select a chat model to enable on-device replies."
+            return false
+        }
+
         errorMessage = nil
 
         do {
             let engine = try await Task.detached(priority: .userInitiated) {
-                return try await ChatEngineFactory.makeDefaultEngine(bundle: bundle)
+                return try ChatEngineFactory.makeEngine(for: model, bundle: bundle)
             }.value
             configure(engine: engine)
+            return true
         } catch {
             errorMessage = error.localizedDescription
+            return false
         }
     }
 
@@ -94,7 +120,7 @@ final class ChatViewModel: ObservableObject {
 
     private func runInference(using engine: Engine, userPrompt: String) async throws -> String {
         try await Task.detached(priority: .userInitiated) {
-            return try await engine.runner.generate(
+            return try engine.runner.generate(
                 system: engine.systemPrompt,
                 user: userPrompt,
                 tokenizer: engine.tokenizer

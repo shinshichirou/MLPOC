@@ -9,12 +9,19 @@ import CoreML
 import Foundation
 
 // MARK: - Tokenizer bridge
-protocol ChatTokenizer {
+protocol ChatTokenizer: Sendable {
     func encode(_ text: String) -> [Int32]
     func decode(_ ids: [Int32]) -> String
 }
 
-// MARK: - Llama 3.2 split runner (prefill + decode)
+// MARK: - Generic chat runner
+protocol ChatRunning: Sendable {
+    /// Generates an assistant reply given a system and user prompt pair using the provided tokenizer.
+    /// Implementations can ignore the tokenizer if their backend performs tokenization internally.
+    func generate(system: String, user: String, tokenizer: ChatTokenizer) throws -> String
+}
+
+// MARK: - Split runner (prefill + decode)
 final class OnDeviceChatRunner {
     struct Config {
         let maxContext: Int
@@ -32,9 +39,9 @@ final class OnDeviceChatRunner {
             temperature: Float,
             topK: Int,
             topP: Float,
-            prefillResourceName: String = "Llama32_3B_prefill",
-            decodeResourceName: String = "Llama32_3B_decode",
-            resourceSubdirectory: String? = "Llama32_3B"
+            prefillResourceName: String,
+            decodeResourceName: String,
+            resourceSubdirectory: String?
         ) {
             self.maxContext = maxContext
             self.maxNewTokens = maxNewTokens
@@ -76,7 +83,7 @@ final class OnDeviceChatRunner {
                 in: bundle
             )
         else {
-            print("Unable to locate Llama resources: \(config.prefillResourceName) / \(config.decodeResourceName)")
+            print("Unable to locate chat resources: \(config.prefillResourceName) / \(config.decodeResourceName)")
             return nil
         }
 
@@ -104,7 +111,7 @@ final class OnDeviceChatRunner {
 
         guard let prefillModel, let decodeModel else {
             if let loadError {
-                print("Failed to load Llama models: \(loadError)")
+                print("Failed to load chat models: \(loadError)")
             }
             return nil
         }
@@ -117,7 +124,7 @@ final class OnDeviceChatRunner {
             let shape = logitsDesc.multiArrayConstraint?.shape,
             let vocabDim = shape.last?.intValue
         else {
-            print("Unable to infer vocab size from Llama prefill output")
+            print("Unable to infer vocab size from prefill output")
             return nil
         }
 
@@ -370,6 +377,9 @@ final class OnDeviceChatRunner {
         return fallback
     }
 }
+
+extension OnDeviceChatRunner: ChatRunning {}
+extension OnDeviceChatRunner: @unchecked Sendable {}
 
 private extension MLShapedArray where Scalar == Float16 {
     func makeMultiArray() -> MLMultiArray {

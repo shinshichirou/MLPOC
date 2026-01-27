@@ -1,17 +1,34 @@
 import SwiftUI
 
-struct ChatView: View {
-    @StateObject private var viewModel = ChatViewModel()
+struct ChatView<Header: View>: View {
+    @StateObject private var viewModel: ChatViewModel
+    private let navigationTitle: String
+    private let showModelPicker: Bool
+    private let autoPrepare: Bool
+    private let header: Header
 
-    init(viewModel: ChatViewModel? = nil) {
-        if let viewModel {
-            _viewModel = StateObject(wrappedValue: viewModel)
-        }
+    init(
+        viewModel: ChatViewModel? = nil,
+        navigationTitle: String = "On-Device Chat",
+        showModelPicker: Bool = true,
+        autoPrepare: Bool = true,
+        @ViewBuilder header: () -> Header
+    ) {
+        _viewModel = StateObject(wrappedValue: viewModel ?? ChatViewModel())
+        self.navigationTitle = navigationTitle
+        self.showModelPicker = showModelPicker
+        self.autoPrepare = autoPrepare
+        self.header = header()
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
+                header
+
+                if showModelPicker {
+                    modelSelector
+                }
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 12) {
@@ -79,11 +96,29 @@ struct ChatView: View {
                 .padding(.bottom, 16)
                 .padding(.top, 4)
             }
-            .navigationTitle("On-Device Chat")
+            .navigationTitle(navigationTitle)
         }
         .task {
-            await viewModel.loadDefaultEngine()
+            guard autoPrepare else { return }
+            await viewModel.prepareForUse()
         }
+    }
+
+    private var modelSelector: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Picker("Chat Model", selection: $viewModel.selectedModel) {
+                ForEach(ChatModelType.allCases) { model in
+                    Text(model.title).tag(model)
+                }
+            }
+            .pickerStyle(.menu)
+
+            Text(viewModel.selectedModel.capabilityDescription)
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
     }
 
     @ViewBuilder
@@ -127,6 +162,24 @@ struct ChatView: View {
                 .fill(Color(.secondarySystemBackground))
         )
         .padding(.trailing, 60)
+    }
+}
+
+extension ChatView where Header == EmptyView {
+    init(
+        viewModel: ChatViewModel? = nil,
+        navigationTitle: String = "On-Device Chat",
+        showModelPicker: Bool = true,
+        autoPrepare: Bool = true
+    ) {
+        self.init(
+            viewModel: viewModel,
+            navigationTitle: navigationTitle,
+            showModelPicker: showModelPicker,
+            autoPrepare: autoPrepare
+        ) {
+            EmptyView()
+        }
     }
 }
 

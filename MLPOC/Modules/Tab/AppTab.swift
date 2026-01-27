@@ -10,4 +10,6 @@ import Foundation
 enum AppTab: Hashable {
     case objectRecognition
     case chat
+    case gguf
+    case settings
 }

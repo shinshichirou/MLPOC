@@ -154,3 +154,5 @@ final class HuggingFaceTokenizer: ChatTokenizer {
     }
     #endif
 }
+
+extension HuggingFaceTokenizer: @unchecked Sendable {}

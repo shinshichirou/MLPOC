@@ -23,6 +23,17 @@ struct ContentView: View {
                     Label("Chat", systemImage: "ellipsis.bubble")
                 }
                 .tag(AppTab.chat)
+
+            GGUFChatView()
+                .tabItem {
+                    Label("GGUF", systemImage: "brain.head.profile")
+                }
+                .tag(AppTab.gguf)
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .tag(AppTab.settings)
         }
     }
 }

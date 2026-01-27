@@ -8,27 +8,38 @@
 import Foundation
 
 enum ChatEngineFactoryError: LocalizedError {
+    case modelUnavailable(ChatModelType)
     case failedToLoadModels
     case tokenizerUnavailable
 
     var errorDescription: String? {
         switch self {
+        case .modelUnavailable(let model):
+            return "\(model.title) is not configured yet. Add the chat Core ML resources to enable it."
         case .failedToLoadModels:
-            return "Failed to load the Llama CoreML models. Check that Llama32_3B_prefill and Llama32_3B_decode are embedded in the app bundle."
+            return "Failed to load the selected chat Core ML models. Verify that the prefill and decode bundles are embedded in the app."
         case .tokenizerUnavailable:
-            return "Failed to initialize the tokenizer for the chat model."
+            return "Failed to initialize the tokenizer for the selected chat model."
         }
     }
 }
 
 enum ChatEngineFactory {
-    static func makeDefaultEngine(bundle: Bundle = .main) throws -> ChatViewModel.Engine {
-        let resourceSubdirectory = "Llama32_3B"
+    static func makeEngine(for model: ChatModelType, bundle: Bundle = .main) throws -> ChatViewModel.Engine {
+        guard let modelConfiguration = model.configuration else {
+            throw ChatEngineFactoryError.modelUnavailable(model)
+        }
+
+        let resourceSubdirectory = modelConfiguration.resourceSubdirectory
         let prefillDirectory = bundle
-            .url(forResource: "Llama32_3B_prefill", withExtension: "mlmodelc", subdirectory: resourceSubdirectory)?
+            .url(
+                forResource: modelConfiguration.prefillResourceName,
+                withExtension: "mlmodelc",
+                subdirectory: resourceSubdirectory
+            )?
             .deletingLastPathComponent()
             ?? bundle
-                .url(forResource: "Llama32_3B_prefill", withExtension: "mlmodelc")?
+                .url(forResource: modelConfiguration.prefillResourceName, withExtension: "mlmodelc")?
                 .deletingLastPathComponent()
 
         let tokenizer = try HuggingFaceTokenizer(
@@ -38,13 +49,13 @@ enum ChatEngineFactory {
         )
 
         let config = OnDeviceChatRunner.Config(
-            maxContext: 2048,
-            maxNewTokens: 256,
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.9,
-            prefillResourceName: "Llama32_3B_prefill",
-            decodeResourceName: "Llama32_3B_decode",
+            maxContext: modelConfiguration.maxContext,
+            maxNewTokens: modelConfiguration.maxNewTokens,
+            temperature: modelConfiguration.temperature,
+            topK: modelConfiguration.topK,
+            topP: modelConfiguration.topP,
+            prefillResourceName: modelConfiguration.prefillResourceName,
+            decodeResourceName: modelConfiguration.decodeResourceName,
             resourceSubdirectory: resourceSubdirectory
         )
 
@@ -52,15 +63,10 @@ enum ChatEngineFactory {
             throw ChatEngineFactoryError.failedToLoadModels
         }
 
-        let systemPrompt = """
-        You are a helpful on-device assistant based on Llama 3.2 3B. \
-        Provide concise, factual replies and mention when you are unsure.
-        """
-
         return ChatViewModel.Engine(
             runner: runner,
             tokenizer: tokenizer,
-            systemPrompt: systemPrompt
+            systemPrompt: modelConfiguration.systemPrompt
         )
     }
 }
